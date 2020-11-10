@@ -90,7 +90,7 @@ Player.prototype.collideScreen = function (position) {
 //
 var PLAYER_SIZE = new Size(40, 40);         // The size of the player
 var SCREEN_SIZE = new Size(600, 560);       // The size of the game screen
-var PLAYER_INIT_POS = new Point(0, 420);   // The initial position of the player
+var PLAYER_INIT_POS = new Point(0, 0);   // The initial position of the player
 
 var MOVE_DISPLACEMENT = 5;                  // The speed of the player in motion
 var JUMP_SPEED = 15;                        // The speed of the player jumping
@@ -105,6 +105,7 @@ var SHOOT_INTERVAL = 200.0;                 // The period when shooting is disab
 var canShoot = true;                        // A flag indicating whether the player can shoot a bullet
 
 var MONSTER_SIZE = new Size(40, 40);        // The speed of a bullet
+var MONSTER_SPEED = 1;
 var score = 0;
 
 
@@ -132,15 +133,16 @@ function load() {
     // Create the monsters
     var i;
     for (i = 0; i < 6; i++) {
-        var yCoord = Math.floor(Math.random() * 561);    //0 to 560 
-        var xCoord = Math.floor(Math.random() * 601);    //0 to 600
+        var yCoord = Math.floor(Math.random() * 521);    //0 to 560 
+        var xCoord = Math.floor(Math.random() * 561);    //0 to 600
 
-        if (xCoord < 200 && yCoord > 300) {
+        if (xCoord < 200 && yCoord < 300) {
             i--;
             continue;
         }
 
         createMonster(xCoord, yCoord);
+
     }
 
 
@@ -156,8 +158,55 @@ function createMonster(x, y) {
     var monster = document.createElementNS("http://www.w3.org/2000/svg", "use");
     monster.setAttribute("x", x);
     monster.setAttribute("y", y);
+    monster.setAttribute("next_x", Math.floor(Math.random() * 561));
+    monster.setAttribute("next_y", Math.floor(Math.random() * 521));
     monster.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#monster");
     document.getElementById("monsters").appendChild(monster);
+}
+
+//
+// This function  will allow monsters to move around
+// 
+function moveMonster() {
+
+    var monsters = document.getElementById("monsters");
+    for (var i = 0; i < monsters.childNodes.length; i++) {
+        var monster = monsters.childNodes.item(i);
+
+        var x = parseInt(monster.getAttribute("x"));
+        var next_x = parseInt(monster.getAttribute("next_x"));
+        var y = parseInt(monster.getAttribute("y"));
+        var next_y = parseInt(monster.getAttribute("next_y"));
+
+        if (x == next_x) {
+            var xCoord = Math.floor(Math.random() * 561);
+            monster.setAttribute("next_x", xCoord);
+        }
+
+        if (y == next_y) {
+            var yCoord = Math.floor(Math.random() * 521);
+            monster.setAttribute("next_y", yCoord);
+        }
+
+        if (x < next_x)
+            monster.setAttribute("x", x + MONSTER_SPEED);
+        else
+            monster.setAttribute("x", x - MONSTER_SPEED);
+
+        if (y < next_y)
+            monster.setAttribute("y", y + MONSTER_SPEED);
+        else
+            monster.setAttribute("y", y - MONSTER_SPEED);
+
+      
+
+    }
+
+
+
+
+
+
 }
 
 
@@ -378,7 +427,7 @@ function gamePlay() {
 
     // Move the bullets
     moveBullets();
-
+    moveMonster();
     updateScreen();
 }
 
