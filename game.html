@@ -36,15 +36,17 @@
       <g id="monster">
         <path d="M0,30 q0,-30 20,-30 t20,30 l0,10 l-5,-7 l-5,7 l-5,-7 l-5,7 l-5,-7 l-5,7 l-5,-7 l-5,7 l0,-10"
           style="fill:gray;fill-opacity:0.5;stroke:black;stroke-width:2" />
-        <circle cx="12" cy="20" r="5" style="fill:yellow;stroke:black;stroke-width:2">
-          <animateColor attributeName="fill" values="yellow;red;yellow" dur="1s" repeatCount="indefinite" />
-        </circle>
+       
         <circle cx="28" cy="20" r="5" style="fill:yellow;stroke:black;stroke-width:2">
           <animateColor attributeName="fill" values="yellow;red;yellow" dur="1s" repeatCount="indefinite" />
         </circle>
       </g>
       <g id="bullet">
         <circle cx="5" cy="5" r="5" style="fill:red" />
+        <circle cx="6" cy="3" r="1" style="fill:pink" />
+      </g>
+      <g id="monsterBullet">
+        <circle cx="5" cy="5" r="5" style="fill:black" />
         <circle cx="6" cy="3" r="1" style="fill:pink" />
       </g>
     </defs>
@@ -174,6 +176,7 @@
 
           <g id="monsters" />
           <g id="bullets" />
+          <g id="monsterBullets" />
 
           <g id=player_name>
             <text x="20px" y="-10px" text-anchor="middle" dominant-baseline="middle">Text</text>
