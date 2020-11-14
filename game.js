@@ -105,11 +105,12 @@ var SHOOT_INTERVAL = 200.0;                 // The period when shooting is disab
 var canShoot = true;                        // A flag indicating whether the player can shoot a bullet
 
 var MONSTER_SIZE = new Size(40, 40);        // The speed of a bullet
+var SNOWFLAKE_SIZE = new Size(40, 40);
 var MONSTER_SPEED = 1;
 var monsterCanShoot = true;
 var score = 0;
 
-
+var MAX_NUMBER_OF_BULLETS = 8;
 
 //
 // Variables in the game
@@ -148,6 +149,51 @@ function load() {
 
     }
 
+    var j;
+    for (j = 0; j < 8; j++) {
+
+
+        var yCoordSnowflake = Math.floor(Math.random() * 521);    //0 to 560 
+        var xCoordSnowflake = Math.floor(Math.random() * 561);    //0 to 600
+        var snowflakePos = new Point(xCoordSnowflake, yCoordSnowflake);
+        var platforms = document.getElementById("platforms");
+
+        for (var k = 0; k < platforms.childNodes.length; k++) {
+            var node = platforms.childNodes.item(k);
+            if (node.nodeName != "rect") continue;
+
+            var platformX = parseFloat(node.getAttribute("x"));
+            var platformY = parseFloat(node.getAttribute("y"));
+            var w = parseFloat(node.getAttribute("width"));
+            var h = parseFloat(node.getAttribute("height"));
+            var pos = new Point(platformX, platformY);
+            var size = new Size(w, h);
+
+
+
+            if (intersect(pos, size, snowflakePos, SNOWFLAKE_SIZE)) {
+                j--;
+                break;
+            }
+
+
+        }
+        if (intersect(pos, size, snowflakePos, SNOWFLAKE_SIZE))
+
+            continue;
+
+
+        if (xCoordSnowflake < 200 && yCoordSnowflake < 300) {
+            j--;
+            continue;
+        }
+
+
+
+        createSnowflake(xCoordSnowflake, yCoordSnowflake);
+
+    }
+
 
 
 
@@ -169,6 +215,19 @@ function createMonster(x, y) {
     monster.setAttribute("monsterLastLeft", false);
     monster.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#monster");
     document.getElementById("monsters").appendChild(monster);
+}
+
+//
+// This function creates snowflakes
+//
+function createSnowflake(x, y) {
+    
+    var snowflake = document.createElementNS("http://www.w3.org/2000/svg", "use");
+    snowflake.setAttribute("x", x);
+    snowflake.setAttribute("y", y);
+    snowflake.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#snowflake");
+    document.getElementById("snowflakes").appendChild(snowflake);
+
 }
 
 //
@@ -238,6 +297,9 @@ function moveMonster() {
 // This function shoots a bullet from the player
 //
 function shootBullet() {
+if(MAX_NUMBER_OF_BULLETS<1)
+return;
+
     // Disable shooting for a short period of time
     canShoot = false;
     setTimeout("canShoot = true", SHOOT_INTERVAL);
@@ -256,6 +318,8 @@ function shootBullet() {
 
     bullet.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#bullet");
     document.getElementById("bullets").appendChild(bullet);
+
+    MAX_NUMBER_OF_BULLETS--;
 }
 
 //
@@ -371,6 +435,52 @@ function keyup(evt) {
 function collisionDetection() {
     // Check whether the player collides with a monster
     var monsters = document.getElementById("monsters");
+
+    var monsterBullets = document.getElementById("monsterBullets");
+    var node = monsterBullets.childNodes.item(0);
+
+    // Update the position of the bullet
+    if (node != null) {
+        var monsterBulletX = parseInt(node.getAttribute("x"));
+        var monsterBulletY = parseInt(node.getAttribute("y"));
+        if (intersect(new Point(monsterBulletX, monsterBulletY), BULLET_SIZE, player.position, PLAYER_SIZE)) {
+            // Clear the game interval
+            clearInterval(gameInterval);
+
+            // Get the high score table from cookies
+            var highScoreTable = getHighScoreTable();
+
+            // // Create the new score record
+            var playerName = prompt("Please enter your name", "");
+            var record = new ScoreRecord(playerName, score);
+
+            // // Insert the new score record
+            var position = 0;
+            while (position < highScoreTable.length) {
+                var curPositionScore = highScoreTable[position].score;
+                if (curPositionScore < score)
+                    break;
+
+                position++;
+            }
+            if (position < 10)
+                highScoreTable.splice(position, 0, record);
+
+            // Store the new high score table
+            setHighScoreTable(highScoreTable);
+
+            // Show the high score table
+            showHighScoreTable(highScoreTable);
+
+            return;
+        }
+
+
+
+
+    }
+
+
     for (var i = 0; i < monsters.childNodes.length; i++) {
         var monster = monsters.childNodes.item(i);
         var x = parseInt(monster.getAttribute("x"));
@@ -422,7 +532,7 @@ function collisionDetection() {
             var my = parseInt(monster.getAttribute("y"));
 
             if (intersect(new Point(x, y), BULLET_SIZE, new Point(mx, my), MONSTER_SIZE)) {
-                console.log(monster == monsters.childNodes.item(0));
+               
                 if (monster == monsters.childNodes.item(0)) {
                     var monsterBullet = document.getElementById("monsterBullets");
                     monsterBullet.removeChild(monsterBullet.childNodes.item(0));
@@ -440,6 +550,29 @@ function collisionDetection() {
             }
         }
     }
+    // Check whether a snowflake collected
+    var snowflakes = document.getElementById("snowflakes");
+    for (var i = 0; i < snowflakes.childNodes.length; i++) {
+        var snowflake = snowflakes.childNodes.item(i);
+        var x = parseInt(snowflake.getAttribute("x"));
+        var y = parseInt(snowflake.getAttribute("y"));
+
+        if (intersect(new Point(x, y), SNOWFLAKE_SIZE, player.position, PLAYER_SIZE)) {
+
+
+            snowflakes.removeChild(snowflake);
+            i--;
+
+
+
+            //write some code to update the score
+            score += 10;
+            document.getElementById("score").firstChild.data = score;
+        }
+
+
+
+    }
 }
 
 
@@ -455,7 +588,7 @@ function moveBullets() {
         // Update the position of the bullet
         var x = parseInt(node.getAttribute("x"));
 
-        console.log(node.getAttribute("bulletLeft"));
+       
 
         if (node.getAttribute("bulletLeft") == "false")
             node.setAttribute("x", x + BULLET_SPEED);

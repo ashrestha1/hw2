@@ -41,6 +41,16 @@
           <animateColor attributeName="fill" values="yellow;red;yellow" dur="1s" repeatCount="indefinite" />
         </circle>
       </g>
+<g id="snowflake">
+  <path d="M0,30 q0,-30 20,-30 t20,30 l0,10 l-5,-7 l-5,7 l-5,-7 l-5,7 l-5,-7 l-5,7 l-5,-7 l-5,7 l0,-10"
+  style="fill:gray;fill-opacity:0.5;stroke:black;stroke-width:2" />
+
+<circle cx="28" cy="20" r="5" style="fill:yellow;stroke:black;stroke-width:2">
+  <animateColor attributeName="fill" values="yellow;red;yellow" dur="1s" repeatCount="indefinite" />
+</circle>
+</g>
+
+
       <g id="bullet">
         <circle cx="5" cy="5" r="5" style="fill:red" />
         <circle cx="6" cy="3" r="1" style="fill:pink" />
@@ -175,6 +185,7 @@
           </g>
 
           <g id="monsters" />
+          <g id="snowflakes" />
           <g id="bullets" />
           <g id="monsterBullets" />
 
@@ -187,9 +198,9 @@
             <circle cx="20" cy="20" r="20" style="fill:url(#player_color);stroke:black;stroke-width:2" />
             <ellipse cx="15" cy="15" rx="3" ry="6" style="fill:black" />
             <path d="M10,25 l20,0 q0,8 -10,8 t-10,-8" style="fill:orange;stroke:black;stroke-black:2" />
-
-
           </g>
+
+
         </g>
 
         <!--add your highscore table here-->
