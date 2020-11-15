@@ -37,8 +37,8 @@ Player.prototype.isOnPlatform = function () {
         var w = parseFloat(node.getAttribute("width"));
         var h = parseFloat(node.getAttribute("height"));
 
-     
-        
+
+
 
         if (((this.position.x + PLAYER_SIZE.w > x && this.position.x < x + w) ||
             ((this.position.x + PLAYER_SIZE.w) == x && this.motion == motionType.RIGHT) ||
@@ -60,11 +60,11 @@ Player.prototype.collidePlatform = function (position) {
         var y = parseFloat(node.getAttribute("y"));
         var w = parseFloat(node.getAttribute("width"));
         var h = parseFloat(node.getAttribute("height"));
-  
+
         var pos = new Point(x, y);
         var size = new Size(w, h);
 
-     
+
 
         if (intersect(position, PLAYER_SIZE, pos, size)) {
             position.x = this.position.x;
@@ -99,24 +99,30 @@ Player.prototype.collideScreen = function (position) {
 var PLAYER_SIZE = new Size(40, 40);         // The size of the player
 var SCREEN_SIZE = new Size(600, 560);       // The size of the game screen
 var PLAYER_INIT_POS = new Point(0, 0);   // The initial position of the player
-
+var MONSTER_ADDED = 4;
 var MOVE_DISPLACEMENT = 5;                  // The speed of the player in motion
 var JUMP_SPEED = 15;                        // The speed of the player jumping
 var VERTICAL_DISPLACEMENT = 1;              // The displacement of vertical speed
-
+var countdownTimer;
 var GAME_INTERVAL = 25;                     // The time interval of running the game
-
+var cheatModePressed = false;
 var BULLET_SIZE = new Size(10, 10);         // The speed of a bullet
 var BULLET_SPEED = 10.0;                    // The speed of a bullet
 //  = pixels it moves each game loop
 var SHOOT_INTERVAL = 200.0;                 // The period when shooting is disabled
 var canShoot = true;                        // A flag indicating whether the player can shoot a bullet
 
+var fridgeCoord = new Point(540, 500);
 var MONSTER_SIZE = new Size(40, 40);        // The speed of a bullet
 var SNOWFLAKE_SIZE = new Size(40, 40);
 var MONSTER_SPEED = 1;
 var monsterCanShoot = true;
 var score = 0;
+var portal_1_coord = new Point(560, 100);
+var portal_2_coord = new Point(105, 500);
+var canTeleport = true;
+var bulletCanTeleport = true;
+var timeLeft = 60;
 
 var MAX_NUMBER_OF_BULLETS = 8;
 var platform_up = true;
@@ -128,12 +134,15 @@ var motionType = { NONE: 0, LEFT: 1, RIGHT: 2 }; // Motion enum
 var player = null;                          // The player object
 var gameInterval = null;                    // The interval
 var lastLeft = false;                       // Last movement was left
-
-
+var playerName = "anonymous";
+var level = 1;
 //
 // The load function
 //
 function load() {
+ playerName = prompt("Please enter your name", "");
+document.getElementById("startScreen").style.visibility = "hidden";
+    countdown();
     document.getElementById("highscoretable").style.setProperty("visibility", "hidden", null);
     // Attach keyboard events
     document.documentElement.addEventListener("keydown", keydown, false);
@@ -200,7 +209,14 @@ function load() {
 
         createSnowflake(xCoordSnowflake, yCoordSnowflake);
 
+
+
     }
+
+    createPortal(560, 100);
+    createPortal(105, 500);
+
+    createFridge(540, 500);
 
 
 
@@ -210,7 +226,7 @@ function load() {
     var newPlatform_1 = document.createElementNS("http://www.w3.org/2000/svg", "rect");
 
     // Set the various attributes of the line
-   //    <rect style="fill:black" width="60" height="20" x="100" y="100" />
+    //    <rect style="fill:black" width="60" height="20" x="100" y="100" />
     newPlatform_1.setAttribute("height", 20);
     newPlatform_1.setAttribute("x", 100);
     newPlatform_1.setAttribute("y", 100);
@@ -220,31 +236,31 @@ function load() {
     newPlatform_1.style.setProperty("fill", "black", null);
     var newPlatform_2 = document.createElementNS("http://www.w3.org/2000/svg", "rect");
 
-//<rect style="fill:black" width="60" height="20" x="20" y="220" />
-newPlatform_2.setAttribute("height", 20);
-newPlatform_2.setAttribute("x", 20);
-newPlatform_2.setAttribute("y", 220);
-newPlatform_2.setAttribute("width", 60);
-newPlatform_2.setAttribute("type", "disappearing");
-newPlatform_2.style.setProperty("opacity", 1, null);
-newPlatform_2.style.setProperty("fill", "black", null);
+    //<rect style="fill:black" width="60" height="20" x="20" y="220" />
+    newPlatform_2.setAttribute("height", 20);
+    newPlatform_2.setAttribute("x", 20);
+    newPlatform_2.setAttribute("y", 220);
+    newPlatform_2.setAttribute("width", 60);
+    newPlatform_2.setAttribute("type", "disappearing");
+    newPlatform_2.style.setProperty("opacity", 1, null);
+    newPlatform_2.style.setProperty("fill", "black", null);
 
-var newPlatform_3 = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-//<rect style="fill:blue" width="80" height="20" x="520" y="480" />
-newPlatform_3.setAttribute("height", 20);
-newPlatform_3.setAttribute("x", 520);
-newPlatform_3.setAttribute("y", 480);
-newPlatform_3.setAttribute("width", 80);
-newPlatform_3.setAttribute("type", "disappearing");
-newPlatform_3.style.setProperty("opacity", 1, null);
-newPlatform_3.style.setProperty("fill", "black", null);
+    var newPlatform_3 = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    //<rect style="fill:blue" width="80" height="20" x="520" y="480" />
+    newPlatform_3.setAttribute("height", 20);
+    newPlatform_3.setAttribute("x", 520);
+    newPlatform_3.setAttribute("y", 480);
+    newPlatform_3.setAttribute("width", 80);
+    newPlatform_3.setAttribute("type", "disappearing");
+    newPlatform_3.style.setProperty("opacity", 1, null);
+    newPlatform_3.style.setProperty("fill", "black", null);
 
 
     // Add the new platform to the end of the group
     platforms.appendChild(newPlatform_1);
     platforms.appendChild(newPlatform_2);
     platforms.appendChild(newPlatform_3);
-    
+
 
     // Start the game interval
     gameInterval = setInterval("gamePlay()", GAME_INTERVAL);
@@ -279,6 +295,29 @@ function createSnowflake(x, y) {
 }
 
 //
+// This function creates Portal
+//
+function createPortal(x, y) {
+
+    var portal = document.createElementNS("http://www.w3.org/2000/svg", "use");
+    portal.setAttribute("x", x);
+    portal.setAttribute("y", y);
+    portal.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#portal");
+    document.getElementById("portals").appendChild(portal);
+
+}
+
+function createFridge(x, y) {
+
+    var fridge = document.createElementNS("http://www.w3.org/2000/svg", "use");
+    fridge.setAttribute("x", x);
+    fridge.setAttribute("y", y);
+    fridge.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#fridge");
+    document.getElementById("fridges").appendChild(fridge);
+
+}
+
+//
 // This function  will allow monsters to move around
 // 
 function moveMonster() {
@@ -291,6 +330,9 @@ function moveMonster() {
         var next_x = parseInt(monster.getAttribute("next_x"));
         var y = parseInt(monster.getAttribute("y"));
         var next_y = parseInt(monster.getAttribute("next_y"));
+
+
+
 
         if (x == next_x) {
             var xCoord = Math.floor(Math.random() * 561);
@@ -336,7 +378,7 @@ function moveMonster() {
 // This function shoots a bullet from the player
 //
 function shootBullet() {
-    if (MAX_NUMBER_OF_BULLETS < 1)
+    if (MAX_NUMBER_OF_BULLETS < 1 && (cheatModePressed!=true))
         return;
 
     // Disable shooting for a short period of time
@@ -358,7 +400,11 @@ function shootBullet() {
     bullet.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#bullet");
     document.getElementById("bullets").appendChild(bullet);
 
+
+    if(cheatModePressed!=true)
     MAX_NUMBER_OF_BULLETS--;
+
+
 }
 
 //
@@ -412,6 +458,36 @@ function monsterShootBullet() {
 
 }
 
+function enterPortal_1() {
+
+    if (canTeleport == false)
+        return;
+
+    player.position.x = 105;
+    player.position.y = 500;
+
+    canTeleport = false;
+    setTimeout("canTeleport = true", 2000);
+
+
+}
+
+function enterPortal_2() {
+
+    if (canTeleport == false)
+        return;
+
+    player.position.x = 560;
+    player.position.y = 100;
+
+    canTeleport = false;
+    setTimeout("canTeleport = true", 2000);
+
+
+}
+
+
+
 //
 // This is the keydown handling function for the SVG document
 //
@@ -439,7 +515,13 @@ function keydown(evt) {
                 player.verticalSpeed = JUMP_SPEED;
             }
             break;
-
+            case "C".charCodeAt(0):
+                cheatMode();
+                break;
+                case "V".charCodeAt(0):
+                    notCheatMode();
+                    break;
+    
         case "H".charCodeAt(0): // spacebar = shoot
             if (canShoot) shootBullet();
             break;
@@ -482,15 +564,15 @@ function collisionDetection() {
     if (node != null) {
         var monsterBulletX = parseInt(node.getAttribute("x"));
         var monsterBulletY = parseInt(node.getAttribute("y"));
-        if (intersect(new Point(monsterBulletX, monsterBulletY), BULLET_SIZE, player.position, PLAYER_SIZE)) {
+        if (intersect(new Point(monsterBulletX, monsterBulletY), BULLET_SIZE, player.position, PLAYER_SIZE) && (cheatModePressed!=true)) {
             // Clear the game interval
             clearInterval(gameInterval);
-
+            clearTimeout(countdownTimer);
             // Get the high score table from cookies
             var highScoreTable = getHighScoreTable();
 
             // // Create the new score record
-            var playerName = prompt("Please enter your name", "");
+          
             var record = new ScoreRecord(playerName, score);
 
             // // Insert the new score record
@@ -525,15 +607,15 @@ function collisionDetection() {
         var x = parseInt(monster.getAttribute("x"));
         var y = parseInt(monster.getAttribute("y"));
 
-        if (intersect(new Point(x, y), MONSTER_SIZE, player.position, PLAYER_SIZE)) {
+        if (intersect(new Point(x, y), MONSTER_SIZE, player.position, PLAYER_SIZE) && (cheatModePressed!=true)) {
             // Clear the game interval
             clearInterval(gameInterval);
-
+            clearTimeout(countdownTimer);
             // Get the high score table from cookies
             var highScoreTable = getHighScoreTable();
 
             // // Create the new score record
-            var playerName = prompt("Please enter your name", "");
+           
             var record = new ScoreRecord(playerName, score);
 
             // // Insert the new score record
@@ -567,6 +649,9 @@ function collisionDetection() {
 
         for (var j = 0; j < monsters.childNodes.length; j++) {
             var monster = monsters.childNodes.item(j);
+if(monster == null)
+continue;
+
             var mx = parseInt(monster.getAttribute("x"));
             var my = parseInt(monster.getAttribute("y"));
 
@@ -697,14 +782,13 @@ function gamePlay() {
 
     for (var i = 0; i < platforms.childNodes.length; i++) {
         var platform = platforms.childNodes.item(i);
-        
-        if (platform.nodeName != "rect") continue;
-        
-        if(platform == null)
-        continue;
 
-        if(i == 115)
-        {
+        if (platform.nodeName != "rect") continue;
+
+        if (platform == null)
+            continue;
+
+        if (platform.style.getPropertyValue("fill") == "pink") {
 
             var x = parseFloat(platform.getAttribute("x"));
             var y = parseFloat(platform.getAttribute("y"));
@@ -712,35 +796,35 @@ function gamePlay() {
             var h = parseFloat(platform.getAttribute("height"));
 
 
-   // <rect style="fill:orange" width="60" height="20" x="0" y="60" />
+            // <rect style="fill:orange" width="60" height="20" x="0" y="60" />
 
             if (((player.position.x + PLAYER_SIZE.w > x && player.position.x < x + w) ||
                 ((player.position.x + PLAYER_SIZE.w) == x && player.motion == motionType.RIGHT) ||
                 (player.position.x == (x + w) && player.motion == motionType.LEFT)) &&
                 player.position.y + PLAYER_SIZE.h == y) {
-         
-if(platform_up)
-player.position.y-=1;
-else
-player.position.y+=1;
+
+                if (platform_up)
+                    player.position.y -= 1;
+                else
+                    player.position.y += 1;
 
             }
-            
-           
 
-if(y ==480)
-platform_up = true;
 
-if(y ==360)
- platform_up = false;
 
-if(platform_up)
-platform.setAttribute("y", y-=1);
+            if (y == 480)
+                platform_up = true;
 
-else
-platform.setAttribute("y", y+=1);
-            
-         
+            if (y == 360)
+                platform_up = false;
+
+            if (platform_up)
+                platform.setAttribute("y", y -= 1);
+
+            else
+                platform.setAttribute("y", y += 1);
+
+
 
 
 
@@ -754,7 +838,7 @@ platform.setAttribute("y", y+=1);
             var h = parseFloat(platform.getAttribute("height"));
 
 
-   // <rect style="fill:orange" width="60" height="20" x="0" y="60" />
+            // <rect style="fill:orange" width="60" height="20" x="0" y="60" />
 
             if (((player.position.x + PLAYER_SIZE.w > x && player.position.x < x + w) ||
                 ((player.position.x + PLAYER_SIZE.w) == x && player.motion == motionType.RIGHT) ||
@@ -775,6 +859,69 @@ platform.setAttribute("y", y+=1);
 
         }
     }
+
+    if (intersect(player.position, PLAYER_SIZE, portal_1_coord, MONSTER_SIZE)) {
+        enterPortal_1();
+    }
+
+
+
+    if (intersect(player.position, PLAYER_SIZE, portal_2_coord, MONSTER_SIZE)) {
+        enterPortal_2();
+    }
+
+    var bullets = document.getElementById("bullets");
+    for (var i = 0; i < bullets.childNodes.length; i++) {
+        var node = bullets.childNodes.item(i);
+
+        // Update the position of the bullet
+        var x = parseInt(node.getAttribute("x"));
+        var y = parseInt(node.getAttribute("y"));
+
+        var bulletPos = new Point(x, y);
+
+        if (intersect(bulletPos, BULLET_SIZE, portal_1_coord, MONSTER_SIZE)) {
+
+
+            node.setAttribute("x", 140);
+
+            node.setAttribute("y", 500);
+
+
+
+        }
+
+        if (intersect(bulletPos, BULLET_SIZE, portal_2_coord, MONSTER_SIZE)) {
+
+
+
+            node.setAttribute("x", 560);
+
+            node.setAttribute("y", 100);
+
+
+
+
+        }
+
+
+    }
+
+
+
+    if (intersect(player.position, PLAYER_SIZE, fridgeCoord, MONSTER_SIZE)) {
+
+
+        enterFridge();
+
+
+
+
+    }
+
+
+
+
 
 
 
@@ -802,7 +949,10 @@ function updateScreen() {
     else if (player.motion == motionType.RIGHT || lastLeft == false)
         player.node.setAttribute("transform", "translate(" + player.position.x + "," + player.position.y + ")");
 
+player_name.setAttribute("transform", "translate(" + player.position.x + "," + player.position.y + ")");
 
+console.log(playerName)
+text_name.innerHTML = playerName;
 
     // Calculate the scaling and translation factors	
 
@@ -810,3 +960,231 @@ function updateScreen() {
 
 }
 
+function countdown() {
+
+
+
+
+    timeLeft--;
+
+
+    document.getElementById("timeLeft").firstChild.data = timeLeft;
+
+    if (timeLeft == 0) {
+        // Clear the game interval
+
+        document.getElementById("timeLeft").firstChild.data = timeLeft;
+        clearInterval(gameInterval);
+        clearTimeout(countdownTimer);
+        // Get the high score table from cookies
+        var highScoreTable = getHighScoreTable();
+
+        // // Create the new score record
+       
+        
+        var record = new ScoreRecord(playerName, score);
+
+        // // Insert the new score record
+        var position = 0;
+        while (position < highScoreTable.length) {
+            var curPositionScore = highScoreTable[position].score;
+            if (curPositionScore < score)
+                break;
+
+            position++;
+        }
+        if (position < 10)
+            highScoreTable.splice(position, 0, record);
+
+        // Store the new high score table
+        setHighScoreTable(highScoreTable);
+
+        // Show the high score table
+        showHighScoreTable(highScoreTable);
+
+        return;
+
+    }
+
+    countdownTimer = setTimeout("countdown()", 1000);
+
+
+}
+
+function enterFridge() {
+    var snowflakes = document.getElementById("snowflakes");
+
+
+
+    if (snowflakes.childNodes.length != 0)
+        return;
+
+    level++;
+    document.getElementById("level").firstChild.data = level;
+    document.getElementById("score").firstChild.data = score + timeLeft + 100;
+    restart();
+
+
+}
+
+function restart() {
+    player.position = PLAYER_INIT_POS;
+
+    var monsters = document.getElementById("monsters");
+    for (var i = 0; i < monsters.childNodes.length; i++) {
+        var monster = monsters.childNodes.item(i);
+
+        if (monster != null)
+            monsters.removeChild(monster);
+
+
+
+
+
+    }
+   var  platform1Needed = true;
+   var  platform2Needed = true;
+   var  platform3Needed = true;
+
+    var platforms = document.getElementById("platforms");
+
+
+
+    for (var i = 0; i < platforms.childNodes.length; i++) {
+        var platform = platforms.childNodes.item(i);
+
+        if (platform.nodeName != "rect") continue;
+
+        if (platform == null)
+            continue;
+        if (platform.getAttribute("x") == 100 && platform.getAttribute("y") == 100 && platform.getAttribute("width") == 60) {
+            platform1Needed = false;
+
+        } if (platform.getAttribute("x") == 20 && platform.getAttribute("y") == 220 && platform.getAttribute("width") == 60) {
+            platform2Needed = false;
+
+        }
+        if (platform.getAttribute("x") == 520 && platform.getAttribute("y") == 480 && platform.getAttribute("width") == 80) {
+            platform3Needed = false;
+
+        }
+
+
+    }
+
+
+
+    if (platform1Needed) {
+        var newPlatform_1 = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        newPlatform_1.setAttribute("height", 20);
+        newPlatform_1.setAttribute("x", 100);
+        newPlatform_1.setAttribute("y", 100);
+        newPlatform_1.setAttribute("width", 60);
+        newPlatform_1.setAttribute("type", "disappearing");
+        newPlatform_1.style.setProperty("opacity", 1, null);
+        newPlatform_1.style.setProperty("fill", "black", null);
+        platforms.appendChild(newPlatform_1);
+    }
+    if (platform2Needed) {
+        var newPlatform_2 = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        newPlatform_2.setAttribute("height", 20);
+        newPlatform_2.setAttribute("x", 20);
+        newPlatform_2.setAttribute("y", 220);
+        newPlatform_2.setAttribute("width", 60);
+        newPlatform_2.setAttribute("type", "disappearing");
+        newPlatform_2.style.setProperty("opacity", 1, null);
+        newPlatform_2.style.setProperty("fill", "black", null);
+        platforms.appendChild(newPlatform_2);
+    }
+    if (platform3Needed) {
+        var newPlatform_3 = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        newPlatform_3.setAttribute("height", 20);
+        newPlatform_3.setAttribute("x", 520);
+        newPlatform_3.setAttribute("y", 480);
+        newPlatform_3.setAttribute("width", 80);
+        newPlatform_3.setAttribute("type", "disappearing");
+        newPlatform_3.style.setProperty("opacity", 1, null);
+        newPlatform_3.style.setProperty("fill", "black", null);
+        platforms.appendChild(newPlatform_3);
+    }
+
+platform1Needed = false;
+platform2Needed = false;
+platform3Needed = false;
+
+
+    for (i = 0; i < (6 + MONSTER_ADDED); i++) {
+        var yCoord = Math.floor(Math.random() * 521);    //0 to 560 
+        var xCoord = Math.floor(Math.random() * 561);    //0 to 600
+
+        if (xCoord < 200 && yCoord < 300) {
+            i--;
+            continue;
+        }
+
+        createMonster(xCoord, yCoord);
+
+    }
+    MONSTER_ADDED += 4;
+
+    MAX_NUMBER_OF_BULLETS = 8;
+
+    var j;
+    for (j = 0; j < 8; j++) {
+
+
+        var yCoordSnowflake = Math.floor(Math.random() * 521);    //0 to 560 
+        var xCoordSnowflake = Math.floor(Math.random() * 561);    //0 to 600
+        var snowflakePos = new Point(xCoordSnowflake, yCoordSnowflake);
+        var platforms = document.getElementById("platforms");
+
+        for (var k = 0; k < platforms.childNodes.length; k++) {
+            var node = platforms.childNodes.item(k);
+            if (node.nodeName != "rect") continue;
+
+            var platformX = parseFloat(node.getAttribute("x"));
+            var platformY = parseFloat(node.getAttribute("y"));
+            var w = parseFloat(node.getAttribute("width"));
+            var h = parseFloat(node.getAttribute("height"));
+            var pos = new Point(platformX, platformY);
+            var size = new Size(w, h);
+
+
+
+            if (intersect(pos, size, snowflakePos, SNOWFLAKE_SIZE)) {
+                j--;
+                break;
+            }
+
+
+        }
+        if (intersect(pos, size, snowflakePos, SNOWFLAKE_SIZE))
+
+            continue;
+
+
+        if (xCoordSnowflake < 200 && yCoordSnowflake < 300) {
+            j--;
+            continue;
+        }
+
+
+
+        createSnowflake(xCoordSnowflake, yCoordSnowflake);
+
+
+
+    }
+
+}
+function cheatMode(){
+
+cheatModePressed = true;
+
+}
+
+function notCheatMode(){
+
+    cheatModePressed = false;
+    
+    }

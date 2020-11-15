@@ -10,7 +10,7 @@
   <script language="JavaScript" src="highscore.js"></script>
 </head>
 
-<body style="text-align: center" onload="load();">
+<body style="text-align: center" >
 
   <!-- Starting screen to be put here -->
   <!-- <svg width="800px" height="600px" style="position:absolute;">
@@ -49,7 +49,23 @@
           <animateColor attributeName="fill" values="yellow;red;yellow" dur="1s" repeatCount="indefinite" />
         </circle>
       </g>
+      <g id="portal">
+        <path d="M0,30 q0,-30 20,-30 t20,30 l0,10 l-5,-7 l-5,7 l-5,-7 l-5,7 l-5,-7 l-5,7 l-5,-7 l-5,7 l0,-10"
+          style="fill:gray;fill-opacity:0.5;stroke:black;stroke-width:2" />
 
+        <circle cx="28" cy="20" r="5" style="fill:yellow;stroke:black;stroke-width:2">
+          <animateColor attributeName="fill" values="yellow;red;yellow" dur="1s" repeatCount="indefinite" />
+        </circle>
+      </g>
+
+      <g id="fridge">
+        <path d="M0,30 q0,-30 20,-30 t20,30 l0,10 l-5,-7 l-5,7 l-5,-7 l-5,7 l-5,-7 l-5,7 l-5,-7 l-5,7 l0,-10"
+          style="fill:gray;fill-opacity:0.5;stroke:black;stroke-width:2" />
+
+        <circle cx="28" cy="20" r="5" style="fill:yellow;stroke:black;stroke-width:2">
+          <animateColor attributeName="fill" values="yellow;red;yellow" dur="1s" repeatCount="indefinite" />
+        </circle>
+      </g>
 
       <g id="bullet">
         <circle cx="5" cy="5" r="5" style="fill:red" />
@@ -59,6 +75,8 @@
         <circle cx="5" cy="5" r="5" style="fill:black" />
         <circle cx="6" cy="3" r="1" style="fill:pink" />
       </g>
+
+
     </defs>
 
     <rect width="100%" height="100%" style="fill:url(#background_pattern);stroke:orange;stroke-width:4" />
@@ -72,6 +90,23 @@
       <rect x="0" y="10" width="140" height="35" style="fill:white" />
       <text id="score" x="70" y="36" style="fill:orange;font-size:25px;text-anchor:middle">0</text>
     </g>
+
+    <g transform="translate(640, 500)">
+      <text x="70" y="0" style="fill:orange;font-size:25px;font-weight:bold;text-anchor:middle">
+        Time left:
+      </text>
+      <rect x="0" y="10" width="140" height="35" style="fill:white" />
+      <text id="timeLeft" x="70" y="36" style="fill:orange;font-size:25px;text-anchor:middle">60</text>
+    </g>
+
+    <g transform="translate(640, 200)">
+      <text x="70" y="0" style="fill:orange;font-size:25px;font-weight:bold;text-anchor:middle">
+        Level:
+      </text>
+      <rect x="0" y="10" width="140" height="35" style="fill:white" />
+      <text id="level" x="70" y="36" style="fill:orange;font-size:25px;text-anchor:middle">1</text>
+    </g>
+
 
     <g style="clip-path:url(#gameareaclip)">
       <g transform="translate(20,20)">
@@ -140,18 +175,18 @@
 
             <!-- 320 -->
 
-            <rect style="fill:orange" width="30" height="20" x="120" y="320" />
-            <rect style="fill:orange" width="30" height="20" x="140" y="320" />
+            <rect style="fill:orange" width="30" height="20" x="120" y="340" />
+            <rect style="fill:orange" width="30" height="20" x="140" y="340" />
 
             <!-- 340 -->
 
 
-            <rect style="fill:orange" width="100" height="20" x="80" y="340" />
-            <rect style="fill:orange" width="30" height="20" x="160" y="340" />
+            <rect style="fill:orange" width="60" height="20" x="120" y="360" />
+            <rect style="fill:orange" width="30" height="20" x="160" y="360" />
             <!-- 360 -->
 
 
-            <rect style="fill:orange" width="140" height="20" x="80" y="360" />
+            <rect style="fill:orange" width="100" height="20" x="120" y="380" />
             <rect style="fill:orange" width="20" height="20" x="580" y="360" />
 
             <!-- 380 -->
@@ -170,7 +205,7 @@
 
 
             <!-- 480 -->
-            <rect style="fill:orange" width="80" height="20" x="0" y="480" />
+            <rect style="fill:pink" width="80" height="20" x="0" y="480" />
             <rect style="fill:orange" width="20" height="20" x="500" y="480" />
            
 
@@ -185,6 +220,7 @@
             <rect style="fill:orange" width="220" height="20" x="150" y="520" />
             <rect style="fill:orange" width="40" height="20" x="360" y="520" />
             <rect style="fill:orange" width="20" height="20" x="500" y="520" />
+            <rect style="fill:black" width="20" height="160" x="80" y="400" />            
 
 
             <!-- the floor -->
@@ -195,9 +231,11 @@
           <g id="snowflakes" />
           <g id="bullets" />
           <g id="monsterBullets" />
+          <g id= "portals" />
+          <g id ="fridges" />
 
           <g id=player_name>
-            <text x="20px" y="-10px" text-anchor="middle" dominant-baseline="middle">Text</text>
+            <text id=text_name x="20px" y="-10px" text-anchor="middle" dominant-baseline="middle">Text</text>
           </g>
 
           <g id="player">
@@ -217,9 +255,32 @@
             High Score Table
           </text>
           <text id="highscoretext" y="45" style="font-size: 20px;font-weight:bold" />
+
+          <g  transform="translate(325,400)">
+            <rect x="0" y="10" width="140" height="35" style="fill:black" />
+            <text id="start" x="70" y="36" style="fill:orange;font-size:25px;text-anchor:middle" onclick="load();">Start again?</text>
+          </g>
         </g>
 
       </g>
+    </g>
+    <g id="startScreen" transform="translate(0,0)">
+      <rect x="5" y="5" width="790" height="590" style="fill:white;stroke:red;stroke-width:2" />
+      <text x="400" y="80" style="fill:red;font-size:30px;font-weight:bold;text-anchor:middle">
+        Super Ice cube 
+      </text>
+      <text width="500" height="500" x="50" y="150" style="fill:red;font-size:30px;font-weight:bold; text-anchor: middle">
+        <tspan x="400" dy="1.2em">  You are an ice cube that needs to get to the fridge.</tspan>
+
+        <tspan x="400" dy="1.2em">  However floating suns are in your ways ready to melt you.</tspan>
+        <tspan x="400" dy="1.2em">     Use "A" to move left, "D" to move right and "W" to jump.</tspan>
+        <tspan x="400" dy="1.2em">    As an ice cube you can shoot ice balls with "H".</tspan>
+        <tspan x="400" dy="1.2em">    Hurry and pick up all the snowflakes to get to the fridge! </tspan>
+      </text>
+      <g  transform="translate(325,400)">
+      <rect x="0" y="10" width="140" height="35" style="fill:black" />
+      <text id="start" x="70" y="36" style="fill:orange;font-size:25px;text-anchor:middle" onclick="load();">Start</text>
+    </g>
     </g>
   </svg>
 </body>
