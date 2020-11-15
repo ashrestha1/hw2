@@ -111,7 +111,7 @@ var BULLET_SPEED = 10.0;                    // The speed of a bullet
 //  = pixels it moves each game loop
 var SHOOT_INTERVAL = 200.0;                 // The period when shooting is disabled
 var canShoot = true;                        // A flag indicating whether the player can shoot a bullet
-
+var firstMonster = true;
 var fridgeCoord = new Point(540, 500);
 var MONSTER_SIZE = new Size(40, 40);        // The speed of a bullet
 var SNOWFLAKE_SIZE = new Size(40, 40);
@@ -122,8 +122,8 @@ var portal_1_coord = new Point(560, 100);
 var portal_2_coord = new Point(105, 500);
 var canTeleport = true;
 var bulletCanTeleport = true;
-var timeLeft = 60;
-
+var timeLeft = 100;
+var nextLevel = false;
 var MAX_NUMBER_OF_BULLETS = 8;
 var platform_up = true;
 //
@@ -140,20 +140,145 @@ var level = 1;
 // The load function
 //
 function load() {
- playerName = prompt("Please enter your name", "");
-document.getElementById("startScreen").style.visibility = "hidden";
+    timeLeft = 100;
+
+    if (nextLevel != true)
+        score = 0;
+
+ 
+        var monsters = document.getElementById("monsters");
+    for (var i = 0; i < monsters.childNodes.length; i++) {
+        var monster = monsters.childNodes.item(i);
+        if (monster.getAttribute("shooter") == true)
+            monsters.setAttribute("shooter",false);
+    }
+
+    var monsterBullet = document.getElementById("monsterBullets");
+    for(var i =0; i<monsterBullet.childNodes.length; i++)
+    {
+        console.log("hi",i);
+     if (monsterBullet.childNodes.item(i) != null)
+         monsterBullet.removeChild(monsterBullet.childNodes.item(i));
+ 
+    }
+    for (var i = 0; i < monsters.childNodes.length; i++) {
+        var monster = monsters.childNodes.item(i);
+        if (monster!= null)
+            monsters.removeChild(monsters.childNodes.item(i));
+        
+        }
+
+
+    var platform1Needed = true;
+    var platform2Needed = true;
+    var platform3Needed = true;
+
+    var platforms = document.getElementById("platforms");
+
+
+
+
+
+
+
+    for (var i = 0; i < platforms.childNodes.length; i++) {
+        var platform = platforms.childNodes.item(i);
+
+        if (platform.nodeName != "rect") continue;
+
+        if (platform == null)
+            continue;
+        if (platform.getAttribute("x") == 100 && platform.getAttribute("y") == 100 && platform.getAttribute("width") == 60) {
+            platform1Needed = false;
+
+        } if (platform.getAttribute("x") == 20 && platform.getAttribute("y") == 220 && platform.getAttribute("width") == 60) {
+            platform2Needed = false;
+
+        }
+        if (platform.getAttribute("x") == 520 && platform.getAttribute("y") == 480 && platform.getAttribute("width") == 80) {
+            platform3Needed = false;
+
+        }
+
+
+    }
+
+    if (platform1Needed) {
+        var newPlatform_1 = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        newPlatform_1.setAttribute("height", 20);
+        newPlatform_1.setAttribute("x", 100);
+        newPlatform_1.setAttribute("y", 100);
+        newPlatform_1.setAttribute("width", 60);
+        newPlatform_1.setAttribute("type", "disappearing");
+        newPlatform_1.style.setProperty("opacity", 1, null);
+        newPlatform_1.style.setProperty("fill", "black", null);
+        platforms.appendChild(newPlatform_1);
+    }
+    if (platform2Needed) {
+        var newPlatform_2 = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        newPlatform_2.setAttribute("height", 20);
+        newPlatform_2.setAttribute("x", 20);
+        newPlatform_2.setAttribute("y", 220);
+        newPlatform_2.setAttribute("width", 60);
+        newPlatform_2.setAttribute("type", "disappearing");
+        newPlatform_2.style.setProperty("opacity", 1, null);
+        newPlatform_2.style.setProperty("fill", "black", null);
+        platforms.appendChild(newPlatform_2);
+    }
+    if (platform3Needed) {
+        var newPlatform_3 = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        newPlatform_3.setAttribute("height", 20);
+        newPlatform_3.setAttribute("x", 520);
+        newPlatform_3.setAttribute("y", 480);
+        newPlatform_3.setAttribute("width", 80);
+        newPlatform_3.setAttribute("type", "disappearing");
+        newPlatform_3.style.setProperty("opacity", 1, null);
+        newPlatform_3.style.setProperty("fill", "black", null);
+        platforms.appendChild(newPlatform_3);
+    }
+
+    platform1Needed = false;
+    platform2Needed = false;
+    platform3Needed = false;
+
+
+
+
+
+    if (nextLevel != true)
+        playerName = prompt("Please enter your name", "");
+
+
+
+    document.getElementById("startScreen").style.visibility = "hidden";
+
+
     countdown();
+
     document.getElementById("highscoretable").style.setProperty("visibility", "hidden", null);
     // Attach keyboard events
-    document.documentElement.addEventListener("keydown", keydown, false);
-    document.documentElement.addEventListener("keyup", keyup, false);
 
+    if (nextLevel != true) {
+        document.documentElement.addEventListener("keydown", keydown, false);
+        document.documentElement.addEventListener("keyup", keyup, false);
+
+        player = new Player();
+    }
     // Create the player
-    player = new Player();
+
 
     // Create the monsters
+
+    if (nextLevel == false)
+        MONSTER_ADDED = 0;
+
+
+    if (nextLevel == true)
+        firstMonster = true;
+
+
     var i;
-    for (i = 0; i < 1; i++) {
+    for (i = 0; i < 6 + MONSTER_ADDED; i++) {
         var yCoord = Math.floor(Math.random() * 521);    //0 to 560 
         var xCoord = Math.floor(Math.random() * 561);    //0 to 600
 
@@ -165,6 +290,10 @@ document.getElementById("startScreen").style.visibility = "hidden";
         createMonster(xCoord, yCoord);
 
     }
+
+    MONSTER_ADDED += 4;
+    MAX_NUMBER_OF_BULLETS = 8;
+
 
     var j;
     for (j = 0; j < 8; j++) {
@@ -213,54 +342,15 @@ document.getElementById("startScreen").style.visibility = "hidden";
 
     }
 
-    createPortal(560, 100);
-    createPortal(105, 500);
+    if (nextLevel != true) {
+        createPortal(560, 100);
+        createPortal(105, 500);
 
-    createFridge(540, 500);
+        createFridge(540, 500);
 
+    }
 
-
-    var platforms = document.getElementById("platforms");
-
-    // Create a new line element
-    var newPlatform_1 = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-
-    // Set the various attributes of the line
-    //    <rect style="fill:black" width="60" height="20" x="100" y="100" />
-    newPlatform_1.setAttribute("height", 20);
-    newPlatform_1.setAttribute("x", 100);
-    newPlatform_1.setAttribute("y", 100);
-    newPlatform_1.setAttribute("width", 60);
-    newPlatform_1.setAttribute("type", "disappearing");
-    newPlatform_1.style.setProperty("opacity", 1, null);
-    newPlatform_1.style.setProperty("fill", "black", null);
-    var newPlatform_2 = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-
-    //<rect style="fill:black" width="60" height="20" x="20" y="220" />
-    newPlatform_2.setAttribute("height", 20);
-    newPlatform_2.setAttribute("x", 20);
-    newPlatform_2.setAttribute("y", 220);
-    newPlatform_2.setAttribute("width", 60);
-    newPlatform_2.setAttribute("type", "disappearing");
-    newPlatform_2.style.setProperty("opacity", 1, null);
-    newPlatform_2.style.setProperty("fill", "black", null);
-
-    var newPlatform_3 = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-    //<rect style="fill:blue" width="80" height="20" x="520" y="480" />
-    newPlatform_3.setAttribute("height", 20);
-    newPlatform_3.setAttribute("x", 520);
-    newPlatform_3.setAttribute("y", 480);
-    newPlatform_3.setAttribute("width", 80);
-    newPlatform_3.setAttribute("type", "disappearing");
-    newPlatform_3.style.setProperty("opacity", 1, null);
-    newPlatform_3.style.setProperty("fill", "black", null);
-
-
-    // Add the new platform to the end of the group
-    platforms.appendChild(newPlatform_1);
-    platforms.appendChild(newPlatform_2);
-    platforms.appendChild(newPlatform_3);
-
+    nextLevel = false;
 
     // Start the game interval
     gameInterval = setInterval("gamePlay()", GAME_INTERVAL);
@@ -271,6 +361,10 @@ document.getElementById("startScreen").style.visibility = "hidden";
 // This function creates the monsters in the game
 //
 function createMonster(x, y) {
+
+
+
+
     var monster = document.createElementNS("http://www.w3.org/2000/svg", "use");
     monster.setAttribute("x", x);
     monster.setAttribute("y", y);
@@ -278,6 +372,11 @@ function createMonster(x, y) {
     monster.setAttribute("next_y", Math.floor(Math.random() * 521));
     monster.setAttribute("monsterLastLeft", false);
     monster.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#monster");
+    if (firstMonster) {
+        monster.setAttribute("shooter", true);
+        firstMonster = false;
+
+    }
     document.getElementById("monsters").appendChild(monster);
 }
 
@@ -378,7 +477,7 @@ function moveMonster() {
 // This function shoots a bullet from the player
 //
 function shootBullet() {
-    if (MAX_NUMBER_OF_BULLETS < 1 && (cheatModePressed!=true))
+    if (MAX_NUMBER_OF_BULLETS < 1 && (cheatModePressed != true))
         return;
 
     // Disable shooting for a short period of time
@@ -401,8 +500,8 @@ function shootBullet() {
     document.getElementById("bullets").appendChild(bullet);
 
 
-    if(cheatModePressed!=true)
-    MAX_NUMBER_OF_BULLETS--;
+    if (cheatModePressed != true)
+        MAX_NUMBER_OF_BULLETS--;
 
 
 }
@@ -411,12 +510,41 @@ function shootBullet() {
 // This function shoots a bullet from the monster
 //
 function monsterShootBullet() {
+
+
     // Disable shooting for a short period of time
     var monsters = document.getElementById("monsters");
-    var specialMonster = monsters.childNodes.item(0);
+
+    var isAShooter = false;
+
+    for (var i = 0; i < monsters.childNodes.length; i++) {
+        var monster = monsters.childNodes.item(i);
+
+        if (monster.getAttribute("shooter") == "true") {
 
 
-    if (monsterCanShoot == true) {    // Create the bullet using the use node
+            isAShooter = true;
+            var specialMonster = monster;
+
+            break;
+        }
+
+    }
+
+
+    if (isAShooter == false)
+        return;
+
+
+    var monsterBullets = document.getElementById("monsterBullets");
+    var node = monsterBullets.childNodes.item(i);
+
+    if (node == null)
+        monsterCanShoot = true;
+
+    if (monsterCanShoot == true) {
+        
+        // Create the bullet using the use node
         var monsterBullet = document.createElementNS("http://www.w3.org/2000/svg", "use");
 
         if (specialMonster.getAttribute("monsterLastLeft") == "false") {
@@ -437,8 +565,7 @@ function monsterShootBullet() {
 
 
     // Go through all bullets
-    var monsterBullets = document.getElementById("monsterBullets");
-    var node = monsterBullets.childNodes.item(0);
+
 
     // Update the position of the bullet
     if (node != null) {
@@ -515,13 +642,13 @@ function keydown(evt) {
                 player.verticalSpeed = JUMP_SPEED;
             }
             break;
-            case "C".charCodeAt(0):
-                cheatMode();
-                break;
-                case "V".charCodeAt(0):
-                    notCheatMode();
-                    break;
-    
+        case "C".charCodeAt(0):
+            cheatMode();
+            break;
+        case "V".charCodeAt(0):
+            notCheatMode();
+            break;
+
         case "H".charCodeAt(0): // spacebar = shoot
             if (canShoot) shootBullet();
             break;
@@ -558,13 +685,14 @@ function collisionDetection() {
     var monsters = document.getElementById("monsters");
 
     var monsterBullets = document.getElementById("monsterBullets");
+
     var node = monsterBullets.childNodes.item(0);
 
     // Update the position of the bullet
     if (node != null) {
         var monsterBulletX = parseInt(node.getAttribute("x"));
         var monsterBulletY = parseInt(node.getAttribute("y"));
-        if (intersect(new Point(monsterBulletX, monsterBulletY), BULLET_SIZE, player.position, PLAYER_SIZE) && (cheatModePressed!=true)) {
+        if (intersect(new Point(monsterBulletX, monsterBulletY), BULLET_SIZE, player.position, PLAYER_SIZE) && (cheatModePressed != true)) {
             // Clear the game interval
             clearInterval(gameInterval);
             clearTimeout(countdownTimer);
@@ -572,7 +700,7 @@ function collisionDetection() {
             var highScoreTable = getHighScoreTable();
 
             // // Create the new score record
-          
+
             var record = new ScoreRecord(playerName, score);
 
             // // Insert the new score record
@@ -607,7 +735,7 @@ function collisionDetection() {
         var x = parseInt(monster.getAttribute("x"));
         var y = parseInt(monster.getAttribute("y"));
 
-        if (intersect(new Point(x, y), MONSTER_SIZE, player.position, PLAYER_SIZE) && (cheatModePressed!=true)) {
+        if (intersect(new Point(x, y), MONSTER_SIZE, player.position, PLAYER_SIZE) && (cheatModePressed != true)) {
             // Clear the game interval
             clearInterval(gameInterval);
             clearTimeout(countdownTimer);
@@ -615,7 +743,7 @@ function collisionDetection() {
             var highScoreTable = getHighScoreTable();
 
             // // Create the new score record
-           
+
             var record = new ScoreRecord(playerName, score);
 
             // // Insert the new score record
@@ -649,15 +777,15 @@ function collisionDetection() {
 
         for (var j = 0; j < monsters.childNodes.length; j++) {
             var monster = monsters.childNodes.item(j);
-if(monster == null)
-continue;
+            if (monster == null)
+                continue;
 
             var mx = parseInt(monster.getAttribute("x"));
             var my = parseInt(monster.getAttribute("y"));
 
             if (intersect(new Point(x, y), BULLET_SIZE, new Point(mx, my), MONSTER_SIZE)) {
 
-                if (monster == monsters.childNodes.item(0)) {
+                if (monster.getAttribute("shooter") == "true") {
                     var monsterBullet = document.getElementById("monsterBullets");
                     monsterBullet.removeChild(monsterBullet.childNodes.item(0));
                 }
@@ -949,10 +1077,10 @@ function updateScreen() {
     else if (player.motion == motionType.RIGHT || lastLeft == false)
         player.node.setAttribute("transform", "translate(" + player.position.x + "," + player.position.y + ")");
 
-player_name.setAttribute("transform", "translate(" + player.position.x + "," + player.position.y + ")");
+    player_name.setAttribute("transform", "translate(" + player.position.x + "," + player.position.y + ")");
 
-console.log(playerName)
-text_name.innerHTML = playerName;
+
+    text_name.innerHTML = playerName;
 
     // Calculate the scaling and translation factors	
 
@@ -980,8 +1108,8 @@ function countdown() {
         var highScoreTable = getHighScoreTable();
 
         // // Create the new score record
-       
-        
+
+
         var record = new ScoreRecord(playerName, score);
 
         // // Insert the new score record
@@ -1022,169 +1150,55 @@ function enterFridge() {
     level++;
     document.getElementById("level").firstChild.data = level;
     document.getElementById("score").firstChild.data = score + timeLeft + 100;
+    player.position.x = 0;
+    player.position.y = 0;
+    clearInterval(gameInterval);
     restart();
+
 
 
 }
 
 function restart() {
-    player.position = PLAYER_INIT_POS;
+
 
     var monsters = document.getElementById("monsters");
     for (var i = 0; i < monsters.childNodes.length; i++) {
         var monster = monsters.childNodes.item(i);
-
-        if (monster != null)
-            monsters.removeChild(monster);
-
-
-
-
-
+        if (monster.getAttribute("shooter") == true)
+            monsters.setAttribute("shooter",false);
     }
-   var  platform1Needed = true;
-   var  platform2Needed = true;
-   var  platform3Needed = true;
 
-    var platforms = document.getElementById("platforms");
-
-
-
-    for (var i = 0; i < platforms.childNodes.length; i++) {
-        var platform = platforms.childNodes.item(i);
-
-        if (platform.nodeName != "rect") continue;
-
-        if (platform == null)
-            continue;
-        if (platform.getAttribute("x") == 100 && platform.getAttribute("y") == 100 && platform.getAttribute("width") == 60) {
-            platform1Needed = false;
-
-        } if (platform.getAttribute("x") == 20 && platform.getAttribute("y") == 220 && platform.getAttribute("width") == 60) {
-            platform2Needed = false;
-
-        }
-        if (platform.getAttribute("x") == 520 && platform.getAttribute("y") == 480 && platform.getAttribute("width") == 80) {
-            platform3Needed = false;
-
-        }
-
-
+    var monsterBullet = document.getElementById("monsterBullets");
+    for(var i =0; i<monsterBullet.childNodes.length; i++)
+    {
+        console.log("hi",i);
+     if (monsterBullet.childNodes.item(i) != null)
+         monsterBullet.removeChild(monsterBullet.childNodes.item(i));
+ 
     }
 
 
-
-    if (platform1Needed) {
-        var newPlatform_1 = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-        newPlatform_1.setAttribute("height", 20);
-        newPlatform_1.setAttribute("x", 100);
-        newPlatform_1.setAttribute("y", 100);
-        newPlatform_1.setAttribute("width", 60);
-        newPlatform_1.setAttribute("type", "disappearing");
-        newPlatform_1.style.setProperty("opacity", 1, null);
-        newPlatform_1.style.setProperty("fill", "black", null);
-        platforms.appendChild(newPlatform_1);
-    }
-    if (platform2Needed) {
-        var newPlatform_2 = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-        newPlatform_2.setAttribute("height", 20);
-        newPlatform_2.setAttribute("x", 20);
-        newPlatform_2.setAttribute("y", 220);
-        newPlatform_2.setAttribute("width", 60);
-        newPlatform_2.setAttribute("type", "disappearing");
-        newPlatform_2.style.setProperty("opacity", 1, null);
-        newPlatform_2.style.setProperty("fill", "black", null);
-        platforms.appendChild(newPlatform_2);
-    }
-    if (platform3Needed) {
-        var newPlatform_3 = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-        newPlatform_3.setAttribute("height", 20);
-        newPlatform_3.setAttribute("x", 520);
-        newPlatform_3.setAttribute("y", 480);
-        newPlatform_3.setAttribute("width", 80);
-        newPlatform_3.setAttribute("type", "disappearing");
-        newPlatform_3.style.setProperty("opacity", 1, null);
-        newPlatform_3.style.setProperty("fill", "black", null);
-        platforms.appendChild(newPlatform_3);
-    }
-
-platform1Needed = false;
-platform2Needed = false;
-platform3Needed = false;
-
-
-    for (i = 0; i < (6 + MONSTER_ADDED); i++) {
-        var yCoord = Math.floor(Math.random() * 521);    //0 to 560 
-        var xCoord = Math.floor(Math.random() * 561);    //0 to 600
-
-        if (xCoord < 200 && yCoord < 300) {
-            i--;
-            continue;
-        }
-
-        createMonster(xCoord, yCoord);
-
-    }
-    MONSTER_ADDED += 4;
-
-    MAX_NUMBER_OF_BULLETS = 8;
-
-    var j;
-    for (j = 0; j < 8; j++) {
-
-
-        var yCoordSnowflake = Math.floor(Math.random() * 521);    //0 to 560 
-        var xCoordSnowflake = Math.floor(Math.random() * 561);    //0 to 600
-        var snowflakePos = new Point(xCoordSnowflake, yCoordSnowflake);
-        var platforms = document.getElementById("platforms");
-
-        for (var k = 0; k < platforms.childNodes.length; k++) {
-            var node = platforms.childNodes.item(k);
-            if (node.nodeName != "rect") continue;
-
-            var platformX = parseFloat(node.getAttribute("x"));
-            var platformY = parseFloat(node.getAttribute("y"));
-            var w = parseFloat(node.getAttribute("width"));
-            var h = parseFloat(node.getAttribute("height"));
-            var pos = new Point(platformX, platformY);
-            var size = new Size(w, h);
+   
 
 
 
-            if (intersect(pos, size, snowflakePos, SNOWFLAKE_SIZE)) {
-                j--;
-                break;
-            }
+    player.position.x = 0;
+    player.position.y = 0;
+    nextLevel = true;
 
+    load();
 
-        }
-        if (intersect(pos, size, snowflakePos, SNOWFLAKE_SIZE))
-
-            continue;
-
-
-        if (xCoordSnowflake < 200 && yCoordSnowflake < 300) {
-            j--;
-            continue;
-        }
-
-
-
-        createSnowflake(xCoordSnowflake, yCoordSnowflake);
-
-
-
-    }
 
 }
-function cheatMode(){
+function cheatMode() {
 
-cheatModePressed = true;
+    cheatModePressed = true;
 
 }
 
-function notCheatMode(){
+function notCheatMode() {
 
     cheatModePressed = false;
-    
-    }
+
+}
