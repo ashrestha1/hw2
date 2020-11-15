@@ -28,12 +28,17 @@ Player.prototype.isOnPlatform = function () {
     var platforms = document.getElementById("platforms");
     for (var i = 0; i < platforms.childNodes.length; i++) {
         var node = platforms.childNodes.item(i);
+
+
         if (node.nodeName != "rect") continue;
 
         var x = parseFloat(node.getAttribute("x"));
         var y = parseFloat(node.getAttribute("y"));
         var w = parseFloat(node.getAttribute("width"));
         var h = parseFloat(node.getAttribute("height"));
+
+     
+        
 
         if (((this.position.x + PLAYER_SIZE.w > x && this.position.x < x + w) ||
             ((this.position.x + PLAYER_SIZE.w) == x && this.motion == motionType.RIGHT) ||
@@ -55,8 +60,11 @@ Player.prototype.collidePlatform = function (position) {
         var y = parseFloat(node.getAttribute("y"));
         var w = parseFloat(node.getAttribute("width"));
         var h = parseFloat(node.getAttribute("height"));
+  
         var pos = new Point(x, y);
         var size = new Size(w, h);
+
+     
 
         if (intersect(position, PLAYER_SIZE, pos, size)) {
             position.x = this.position.x;
@@ -111,7 +119,7 @@ var monsterCanShoot = true;
 var score = 0;
 
 var MAX_NUMBER_OF_BULLETS = 8;
-
+var platform_up = true;
 //
 // Variables in the game
 //
@@ -196,7 +204,47 @@ function load() {
 
 
 
+    var platforms = document.getElementById("platforms");
 
+    // Create a new line element
+    var newPlatform_1 = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+
+    // Set the various attributes of the line
+   //    <rect style="fill:black" width="60" height="20" x="100" y="100" />
+    newPlatform_1.setAttribute("height", 20);
+    newPlatform_1.setAttribute("x", 100);
+    newPlatform_1.setAttribute("y", 100);
+    newPlatform_1.setAttribute("width", 60);
+    newPlatform_1.setAttribute("type", "disappearing");
+    newPlatform_1.style.setProperty("opacity", 1, null);
+    newPlatform_1.style.setProperty("fill", "black", null);
+    var newPlatform_2 = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+
+//<rect style="fill:black" width="60" height="20" x="20" y="220" />
+newPlatform_2.setAttribute("height", 20);
+newPlatform_2.setAttribute("x", 20);
+newPlatform_2.setAttribute("y", 220);
+newPlatform_2.setAttribute("width", 60);
+newPlatform_2.setAttribute("type", "disappearing");
+newPlatform_2.style.setProperty("opacity", 1, null);
+newPlatform_2.style.setProperty("fill", "black", null);
+
+var newPlatform_3 = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+//<rect style="fill:blue" width="80" height="20" x="520" y="480" />
+newPlatform_3.setAttribute("height", 20);
+newPlatform_3.setAttribute("x", 520);
+newPlatform_3.setAttribute("y", 480);
+newPlatform_3.setAttribute("width", 80);
+newPlatform_3.setAttribute("type", "disappearing");
+newPlatform_3.style.setProperty("opacity", 1, null);
+newPlatform_3.style.setProperty("fill", "black", null);
+
+
+    // Add the new platform to the end of the group
+    platforms.appendChild(newPlatform_1);
+    platforms.appendChild(newPlatform_2);
+    platforms.appendChild(newPlatform_3);
+    
 
     // Start the game interval
     gameInterval = setInterval("gamePlay()", GAME_INTERVAL);
@@ -221,7 +269,7 @@ function createMonster(x, y) {
 // This function creates snowflakes
 //
 function createSnowflake(x, y) {
-    
+
     var snowflake = document.createElementNS("http://www.w3.org/2000/svg", "use");
     snowflake.setAttribute("x", x);
     snowflake.setAttribute("y", y);
@@ -266,21 +314,12 @@ function moveMonster() {
         }
 
 
-
         if (y < next_y)
             monster.setAttribute("y", y + MONSTER_SPEED);
         else
             monster.setAttribute("y", y - MONSTER_SPEED);
 
-
-
     }
-
-
-
-
-
-
 
 
 }
@@ -297,8 +336,8 @@ function moveMonster() {
 // This function shoots a bullet from the player
 //
 function shootBullet() {
-if(MAX_NUMBER_OF_BULLETS<1)
-return;
+    if (MAX_NUMBER_OF_BULLETS < 1)
+        return;
 
     // Disable shooting for a short period of time
     canShoot = false;
@@ -532,7 +571,7 @@ function collisionDetection() {
             var my = parseInt(monster.getAttribute("y"));
 
             if (intersect(new Point(x, y), BULLET_SIZE, new Point(mx, my), MONSTER_SIZE)) {
-               
+
                 if (monster == monsters.childNodes.item(0)) {
                     var monsterBullet = document.getElementById("monsterBullets");
                     monsterBullet.removeChild(monsterBullet.childNodes.item(0));
@@ -588,7 +627,7 @@ function moveBullets() {
         // Update the position of the bullet
         var x = parseInt(node.getAttribute("x"));
 
-       
+
 
         if (node.getAttribute("bulletLeft") == "false")
             node.setAttribute("x", x + BULLET_SPEED);
@@ -654,6 +693,91 @@ function gamePlay() {
     // Set the location back to the player object (before update the screen)
     player.position = position;
 
+    var platforms = document.getElementById("platforms");
+
+    for (var i = 0; i < platforms.childNodes.length; i++) {
+        var platform = platforms.childNodes.item(i);
+        
+        if (platform.nodeName != "rect") continue;
+        
+        if(platform == null)
+        continue;
+
+        if(i == 115)
+        {
+
+            var x = parseFloat(platform.getAttribute("x"));
+            var y = parseFloat(platform.getAttribute("y"));
+            var w = parseFloat(platform.getAttribute("width"));
+            var h = parseFloat(platform.getAttribute("height"));
+
+
+   // <rect style="fill:orange" width="60" height="20" x="0" y="60" />
+
+            if (((player.position.x + PLAYER_SIZE.w > x && player.position.x < x + w) ||
+                ((player.position.x + PLAYER_SIZE.w) == x && player.motion == motionType.RIGHT) ||
+                (player.position.x == (x + w) && player.motion == motionType.LEFT)) &&
+                player.position.y + PLAYER_SIZE.h == y) {
+         
+if(platform_up)
+player.position.y-=1;
+else
+player.position.y+=1;
+
+            }
+            
+           
+
+if(y ==480)
+platform_up = true;
+
+if(y ==360)
+ platform_up = false;
+
+if(platform_up)
+platform.setAttribute("y", y-=1);
+
+else
+platform.setAttribute("y", y+=1);
+            
+         
+
+
+
+        }
+
+        if (platform.getAttribute("type") == "disappearing") {
+
+            var x = parseFloat(platform.getAttribute("x"));
+            var y = parseFloat(platform.getAttribute("y"));
+            var w = parseFloat(platform.getAttribute("width"));
+            var h = parseFloat(platform.getAttribute("height"));
+
+
+   // <rect style="fill:orange" width="60" height="20" x="0" y="60" />
+
+            if (((player.position.x + PLAYER_SIZE.w > x && player.position.x < x + w) ||
+                ((player.position.x + PLAYER_SIZE.w) == x && player.motion == motionType.RIGHT) ||
+                (player.position.x == (x + w) && player.motion == motionType.LEFT)) &&
+                player.position.y + PLAYER_SIZE.h == y) {
+                var platformOpacity = parseFloat(platform.style.getPropertyValue("opacity"));
+                platformOpacity -= 0.1;
+                platform.style.setProperty("opacity", platformOpacity, null);
+
+                if (platformOpacity == 0)
+                    platforms.removeChild(platform);
+            }
+
+
+
+
+
+
+        }
+    }
+
+
+
     // Move the bullets
     moveBullets();
     moveMonster();
@@ -679,7 +803,6 @@ function updateScreen() {
         player.node.setAttribute("transform", "translate(" + player.position.x + "," + player.position.y + ")");
 
 
-    player_name.setAttribute("transform", "translate(" + player.position.x + "," + player.position.y + ")");
 
     // Calculate the scaling and translation factors	
 
