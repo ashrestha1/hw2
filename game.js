@@ -126,7 +126,6 @@ var platform_up = true;
 // Variables in the game
 //
 var motionType = { NONE: 0, LEFT: 1, RIGHT: 2 }; // Motion enum
-var newLevel = true;
 var player = null;                          // The player object
 var gameInterval = null;                    // The interval
 var lastLeft = false;                       // Last movement was left
@@ -143,23 +142,43 @@ function load() {
     timeLeft = 100;
     countdown();
 
-    newLevel = true;
 
     if (nextLevel != true) {
         score = 0;
-        playerName = prompt("Please enter your name", "");
+        level=1;
+        playerName = prompt("Please enter your name", playerName);
+        document.getElementById("score").firstChild.data = score;
+        document.getElementById("level").firstChild.data = level;
+        document.documentElement.addEventListener("keydown", keydown, false);
+        document.documentElement.addEventListener("keyup", keyup, false);
+        player = new Player();
+        MONSTER_ADDED = 0;
+        createPortal(560, 100);
+        createPortal(105, 500);
+        createFridge(540, 500);
     }
 
+
+
     var monsters = document.getElementById("monsters");
+
+
+    
     for (var i = 0; i < monsters.childNodes.length; i++) {
-        if (monsters.childNodes.item(i) != null)
+   
             monsters.removeChild(monsters.childNodes.item(i));
+            i--;
     }
+    console.log("monsters", monsters.childNodes.length);
+
+  
 
     var monsterBullet = document.getElementById("monsterBullets");
     for (var i = 0; i < monsterBullet.childNodes.length; i++) {
         if (monsterBullet.childNodes.item(i) != null)
-            monsterBullet.removeChild(monsterBullet.childNodes.item(i));
+         {   monsterBullet.removeChild(monsterBullet.childNodes.item(i));
+        i--;}
+
     }
 
     var platform1Needed = true;
@@ -227,19 +246,12 @@ function load() {
     document.getElementById("highscoretable").style.setProperty("visibility", "hidden", null);
     // Attach keyboard events
 
-    if (nextLevel != true) {
-        document.documentElement.addEventListener("keydown", keydown, false);
-        document.documentElement.addEventListener("keyup", keyup, false);
-        player = new Player();
-        MONSTER_ADDED = 0;
-        createPortal(560, 100);
-        createPortal(105, 500);
-        createFridge(540, 500);
-    }
+
 
     specialMonsterNeeded = true;
 
     for (var i = 0; i < 6 + MONSTER_ADDED; i++) {
+        console.log("i:" ,i);
         var yCoord = Math.floor(Math.random() * 521);    //0 to 560 
         var xCoord = Math.floor(Math.random() * 561);    //0 to 600
 
@@ -516,12 +528,6 @@ function keydown(evt) {
         case "W".charCodeAt(0):
             if (player.isOnPlatform()) {
                 player.verticalSpeed = JUMP_SPEED; 
-                var monsterBullet = document.getElementById("monsterBullets");
-    for (var i = 0; i < monsterBullet.childNodes.length; i++) {
-        if (monsterBullet.childNodes.item(i) != null)
-            monsterBullet.removeChild(monsterBullet.childNodes.item(i));
-    }
-
             }
             break;
         case "C".charCodeAt(0):
@@ -660,12 +666,17 @@ function collisionDetection() {
 
                 if (monster.getAttribute("shooter") == "true") {
                     var monsterBullet = document.getElementById("monsterBullets");
-                    monsterBullet.removeChild(monsterBullet.childNodes.item(0));
+                    if(monsterBullet.childNodes.item(0) != null)
+                {    monsterBullet.removeChild(monsterBullet.childNodes.item(0));}
                 }
-                monsters.removeChild(monster);
-                j--;
-                bullets.removeChild(bullet);
-                i--;
+
+                if(monster!=null)
+              {  monsters.removeChild(monster);
+                j--;}
+
+                if(bullet!=null)
+              {  bullets.removeChild(bullet);
+                i--;}
                 //write some code to update the score
                 score += 10;
                 document.getElementById("score").firstChild.data = score;
@@ -950,6 +961,7 @@ function restart() {
 
         if (monsterBullet.childNodes.item(i) != null)
             monsterBullet.removeChild(monsterBullet.childNodes.item(i));
+            i--;
     }
     player.position.x = 0;
     player.position.y = 0;
