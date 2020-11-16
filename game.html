@@ -11,6 +11,22 @@
 </head>
 
 <body style="text-align: center" >
+  <audio id="myAudio">
+    <source src="gunshot.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="fridgeSounds">
+    <source src="exit.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="lose">
+    <source src="lose.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="monsterDie">
+    <source src="monsterDie.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="bgMusic">
+    <source src="backgroundMusic.mp3" type="audio/mpeg">
+  </audio>
+  
 
   <!-- Starting screen to be put here -->
   <!-- <svg width="800px" height="600px" style="position:absolute;">
@@ -105,6 +121,14 @@
       </text>
       <rect x="0" y="10" width="140" height="35" style="fill:white" />
       <text id="level" x="70" y="36" style="fill:orange;font-size:25px;text-anchor:middle">1</text>
+    </g>
+
+    <g transform="translate(640, 300)">
+      <text x="70" y="0" style="fill:orange;font-size:25px;font-weight:bold;text-anchor:middle">
+        Ammo:
+      </text>
+      <rect x="0" y="10" width="140" height="35" style="fill:white" />
+      <text id="ammo" x="70" y="36" style="fill:orange;font-size:25px;text-anchor:middle">8</text>
     </g>
 
 
@@ -276,6 +300,7 @@
         <tspan x="400" dy="1.2em">     Use "A" to move left, "D" to move right and "W" to jump.</tspan>
         <tspan x="400" dy="1.2em">    As an ice cube you can shoot ice balls with "H".</tspan>
         <tspan x="400" dy="1.2em">    Hurry and pick up all the snowflakes to get to the fridge! </tspan>
+        <tspan x="400" dy="1.2em">    Aayush Shrestha 0433</tspan>
       </text>
       <g  transform="translate(325,400)">
       <rect x="0" y="10" width="140" height="35" style="fill:black" />

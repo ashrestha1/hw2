@@ -122,6 +122,7 @@ var timeLeft = 100;
 var nextLevel = false;
 var MAX_NUMBER_OF_BULLETS = 8;
 var platform_up = true;
+var shotSound = document.getElementById("myAudio"); 
 //
 // Variables in the game
 //
@@ -136,18 +137,33 @@ var level = 1;
 //
 function load() {
 
+    var bg = document.getElementById("bgMusic"); 
+    bg.loop= true;
+    bg.volume = 0.2;
+    bg.play();
+
+
+
     clearInterval(gameInterval);
     clearTimeout(countdownTimer);
-
     timeLeft = 100;
     countdown();
 
+    MAX_NUMBER_OF_BULLETS = 8;
+
+    if(cheatModePressed)
+    document.getElementById("ammo").firstChild.data = "infinite";
+
+    else
+    document.getElementById("ammo").firstChild.data = MAX_NUMBER_OF_BULLETS;
 
     if (nextLevel != true) {
         score = 0;
         level=1;
+    
         playerName = prompt("Please enter your name", playerName);
         document.getElementById("score").firstChild.data = score;
+        document.getElementById("ammo").firstChild.data = MAX_NUMBER_OF_BULLETS;
         document.getElementById("level").firstChild.data = level;
         document.documentElement.addEventListener("keydown", keydown, false);
         document.documentElement.addEventListener("keyup", keyup, false);
@@ -263,7 +279,7 @@ function load() {
     }
 
     MONSTER_ADDED += 4;
-    MAX_NUMBER_OF_BULLETS = 8;
+    
 
     var j;
     for (j = 0; j < 8; j++) {
@@ -395,6 +411,10 @@ function moveMonster() {
 function shootBullet() {
     if (MAX_NUMBER_OF_BULLETS < 1 && (cheatModePressed != true))
         return;
+        var shotSound = document.getElementById("myAudio"); 
+        shotSound.pause();
+        shotSound.currentTime = 0;
+        shotSound.play();
 
     // Disable shooting for a short period of time
     canShoot = false;
@@ -416,7 +436,10 @@ function shootBullet() {
     document.getElementById("bullets").appendChild(bullet);
 
     if (cheatModePressed != true)
-        MAX_NUMBER_OF_BULLETS--;
+        {MAX_NUMBER_OF_BULLETS--;
+            document.getElementById("ammo").firstChild.data = MAX_NUMBER_OF_BULLETS;
+        
+        }
 }
 //
 // This function shoots a bullet from the monster
@@ -579,6 +602,12 @@ function collisionDetection() {
         var monsterBulletX = parseInt(node.getAttribute("x"));
         var monsterBulletY = parseInt(node.getAttribute("y"));
         if (intersect(new Point(monsterBulletX, monsterBulletY), BULLET_SIZE, player.position, PLAYER_SIZE) && (cheatModePressed != true)) {
+            
+        var lose = document.getElementById("lose"); 
+        lose.pause();
+        lose.currentTime = 0;
+        lose.play();
+
             // Clear the game interval
             clearInterval(gameInterval);
             clearTimeout(countdownTimer);
@@ -598,8 +627,9 @@ function collisionDetection() {
 
                 position++;
             }
-            if (position < 10)
-                highScoreTable.splice(position, 0, record);
+            if (position < 5)
+              highScoreTable.splice(position, 1, record);
+            
 
             // Store the new high score table
             setHighScoreTable(highScoreTable);
@@ -616,12 +646,15 @@ function collisionDetection() {
         var y = parseInt(monster.getAttribute("y"));
 
         if (intersect(new Point(x, y), MONSTER_SIZE, player.position, PLAYER_SIZE) && (cheatModePressed != true)) {
+            var lose = document.getElementById("lose"); 
+            lose.pause();
+            lose.currentTime = 0;
+            lose.play();
             // Clear the game interval
             clearInterval(gameInterval);
             clearTimeout(countdownTimer);
             // Get the high score table from cookies
             var highScoreTable = getHighScoreTable();
-
             // // Create the new score record
 
             var record = new ScoreRecord(playerName, score);
@@ -632,11 +665,12 @@ function collisionDetection() {
                 var curPositionScore = highScoreTable[position].score;
                 if (curPositionScore < score)
                     break;
-
                 position++;
             }
-            if (position < 10)
+            if (position < 5)
                 highScoreTable.splice(position, 0, record);
+        
+            
 
             // Store the new high score table
             setHighScoreTable(highScoreTable);
@@ -663,6 +697,11 @@ function collisionDetection() {
             var my = parseInt(monster.getAttribute("y"));
 
             if (intersect(new Point(x, y), BULLET_SIZE, new Point(mx, my), MONSTER_SIZE)) {
+                var monsterDie = document.getElementById("monsterDie"); 
+                monsterDie.pause();
+                monsterDie.currentTime = 0;
+                monsterDie.play();
+
 
                 if (monster.getAttribute("shooter") == "true") {
                     var monsterBullet = document.getElementById("monsterBullets");
@@ -901,7 +940,10 @@ function countdown() {
 
     if (timeLeft == 0) {
         // Clear the game interval
-
+        var lose = document.getElementById("lose"); 
+        lose.pause();
+        lose.currentTime = 0;
+        lose.play();
         document.getElementById("timeLeft").firstChild.data = timeLeft;
         clearInterval(gameInterval);
         clearTimeout(countdownTimer);
@@ -922,8 +964,9 @@ function countdown() {
 
             position++;
         }
-        if (position < 10)
-            highScoreTable.splice(position, 0, record);
+        if (position < 5)
+        highScoreTable.splice(position, 1, record);
+         
         // Store the new high score table
         setHighScoreTable(highScoreTable);
         // Show the high score table
@@ -937,6 +980,12 @@ function enterFridge() {
     var snowflakes = document.getElementById("snowflakes");
     if (snowflakes.childNodes.length != 0)
         return;
+
+        var fridgeSound = document.getElementById("fridgeSounds"); 
+        fridgeSound.pause();
+        fridgeSound.currentTime = 0;
+        fridgeSound.play();
+
 
     level++;
     document.getElementById("level").firstChild.data = level;
@@ -970,10 +1019,11 @@ function restart() {
 
 }
 function cheatMode() {
-
+    document.getElementById("ammo").firstChild.data = "Infinite";
     cheatModePressed = true;
 }
 
 function notCheatMode() {
+    document.getElementById("ammo").firstChild.data = MAX_NUMBER_OF_BULLETS;
     cheatModePressed = false;
 }

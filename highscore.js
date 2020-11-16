@@ -13,10 +13,10 @@ function ScoreRecord(name, score) {
 function getHighScoreTable() {
     var table = new Array();
 
-    for (var i = 0; i < 10; i++) {
+    for (var i = 0; i < 5; i++) {
         // Contruct the cookie name
         var name = "player" + i;
-
+        console.log(name);
         // Get the cookie value using the cookie name
         var value = getCookie(name);
 
@@ -39,7 +39,8 @@ function getHighScoreTable() {
 // This function stores the high score table to the cookies
 //
 function setHighScoreTable(table) {
-    for (var i = 0; i < 10; i++) {
+
+    for (var i = 0; i < 5; i++) {
         // If i is more than the length of the high score table exit
         // from the for loop
         if (i >= table.length) break;
@@ -101,8 +102,9 @@ function showHighScoreTable(table) {
 
     // Get the high score text node
     var node = document.getElementById("highscoretext");
+    node.innerHTML="";
     
-    for (var i = 0; i < 10; i++) {
+    for (var i = 0; i < 5; i++) {
         // If i is more than the length of the high score table exit
         // from the for loop
         if (i >= table.length) break;
