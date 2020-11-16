@@ -76,8 +76,6 @@ function addHighScore(record, node) {
     name.setAttribute("x", 100);
     name.setAttribute("dy", 40);
     name.appendChild(document.createTextNode(record.name));
-    console.log("score", score)
-    console.log("name", playerName)
 
   if(record.name == playerName)
      {   var span = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
