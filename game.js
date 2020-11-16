@@ -187,7 +187,13 @@ function load() {
     }
     console.log("monsters", monsters.childNodes.length);
 
-  
+    var bullet = document.getElementById("bullets");
+    for (var i = 0; i < bullet.childNodes.length; i++) {
+        if (bullet.childNodes.item(i) != null)
+         {   bullet.removeChild(bullet.childNodes.item(i));
+        i--;}
+
+    }
 
     var monsterBullet = document.getElementById("monsterBullets");
     for (var i = 0; i < monsterBullet.childNodes.length; i++) {
