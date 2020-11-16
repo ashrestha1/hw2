@@ -76,8 +76,17 @@ function addHighScore(record, node) {
     name.setAttribute("x", 100);
     name.setAttribute("dy", 40);
     name.appendChild(document.createTextNode(record.name));
+    console.log("score", score)
+    console.log("name", playerName)
 
-    // Add the name to the text node
+  if(record.name == playerName)
+     {   var span = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+        span.style.fill ="blue"
+        span.append(name);
+        node.append(span);
+    }
+
+   else
     node.appendChild(name);
 
     // Create the score text span
@@ -85,10 +94,19 @@ function addHighScore(record, node) {
 
     // Set the attributes and create the text
     score.setAttribute("x", 400);
-    score.appendChild(document.createTextNode(record.score));
 
-    // Add the name to the text node
-    node.appendChild(score);
+  
+  
+    score.appendChild(document.createTextNode(record.score));
+    if(record.name == playerName)
+    {   var spanScore = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+       spanScore.style.fill ="blue"
+       spanScore.append(score);
+       node.append(spanScore);
+   }
+
+else
+  node.appendChild(score);
 }
 
     

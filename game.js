@@ -228,7 +228,7 @@ function load() {
         newPlatform_1.setAttribute("width", 60);
         newPlatform_1.setAttribute("type", "disappearing");
         newPlatform_1.style.setProperty("opacity", 1, null);
-        newPlatform_1.style.setProperty("fill", "black", null);
+        newPlatform_1.style.setProperty("fill", "rgb(40, 128, 211)", null);
         platforms.appendChild(newPlatform_1);
     }
     if (platform2Needed) {
@@ -239,7 +239,7 @@ function load() {
         newPlatform_2.setAttribute("width", 60);
         newPlatform_2.setAttribute("type", "disappearing");
         newPlatform_2.style.setProperty("opacity", 1, null);
-        newPlatform_2.style.setProperty("fill", "black", null);
+        newPlatform_2.style.setProperty("fill", "rgb(40, 128, 211)", null);
         platforms.appendChild(newPlatform_2);
     }
     if (platform3Needed) {
@@ -250,7 +250,7 @@ function load() {
         newPlatform_3.setAttribute("width", 80);
         newPlatform_3.setAttribute("type", "disappearing");
         newPlatform_3.style.setProperty("opacity", 1, null);
-        newPlatform_3.style.setProperty("fill", "black", null);
+        newPlatform_3.style.setProperty("fill", "rgb(40, 128, 211)", null);
         platforms.appendChild(newPlatform_3);
     }
 
